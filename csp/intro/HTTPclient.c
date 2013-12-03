@@ -3,11 +3,11 @@
 int main(int argc, char **argv)
 {
 	int sockfd, n, counter = 0;
-	char recvline[MAXLINE + 1];
+	char recvline[MAXLINE + 1], buff[MAXLINE] ;
 	struct sockaddr_in servaddr;
 
-	if(argc !=3)
-		err_quit("usage: a.out <IPaddress>");
+	if(argc !=4)
+		err_quit("usage: ./httpclient <IPaddress> <Port Number> <Resource Name>");//to run the program using this command
 
 	if((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
 		err_sys("socket error");
@@ -19,11 +19,11 @@ int main(int argc, char **argv)
 	if(inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0)
 		err_quit("inet_pton error for %s", argv[1]);
 
-	if(connect(sockfd, (SA*) &servaddr, sizeof(servaddr)) < 0)
+	if(connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) < 0)
 		err_sys("connect error");
 
-	printf("Enter in the HTML request: \n ");
-	
+	snprintf(buff, sizeof(buff),"GET /%s HTTP/1.1\r\nHost:localhost\r\n\r\n", argv[3]);
+	Write(sockfd, buff, strlen(buff));
 
 	while((n = read(sockfd, recvline, MAXLINE)) > 0)
 	{
